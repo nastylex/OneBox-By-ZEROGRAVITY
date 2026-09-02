@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OUTBOX — Elevating Brands. Defining Futures.</title>
+<style>
+  :root{
+    --brand-orange:#f24d29;
+    --brand-dark:#c63d25;
+    --brand-darker:#963222;
+    --brand-darkest:#691c10;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:auto;}
+  body{
+    font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background:var(--brand-darker);
+    color:#fff;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  img,video{display:block; max-width:100%;}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; cursor:pointer; background:none; border:none; color:inherit;}
+
+/* ––––– global grid texture ––––– */
+.grid-overlay{
+position:fixed; inset:0; z-index:1; pointer-events:none; opacity:0.1;
+background-image:
+linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px),
+linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px);
+background-size:64px 64px;
+}
+
+/* ––––– navbar ––––– */
+.navbar{
+position:fixed; top:1rem; left:50%; transform:translateX(-50%);
+width:calc(100% - 2rem); max-width:80rem; z-index:50;
+border-radius:999px; border:1px solid transparent;
+display:flex; align-items:center; padding:0.75rem 1.25rem;
+filter:drop-shadow(0 4px 14px rgba(0,0,0,0.25));
+transition:background 0.35s ease, border-color 0.35s ease, backdrop-filter 0.35s ease;
+}
+.navbar.scrolled{
+background:rgba(255,255,255,0.1);
+backdrop-filter:blur(20px);
+-webkit-backdrop-filter:blur(20px);
+border-color:rgba(255,255,255,0.2);
+}
+.navbar .logo{
+font-size:1.5rem; font-weight:900; margin-right:auto; letter-spacing:-0.03em;
+}
+.navbar .logo span.dim{color:rgba(255,255,255,0.7);}
+.navbar .nav-links{
+display:none; gap:2rem; margin-right:2rem; align-items:center;
+}
+.navbar .nav-links a{
+font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.25em;
+transition:color 0.2s ease;
+}
+.navbar .nav-links a:hover{color:var(–brand-orange);}
+.navbar .menu-btn{display:flex; align-items:center; justify-content:center;}
+@media(min-width:1024px){
+.navbar .nav-links{display:flex;}
+}
+
+/* ––––– mobile overlay menu ––––– */
+.mobile-menu{
+position:fixed; inset:0; z-index:100; background:var(–brand-darkest);
+display:flex; flex-direction:column; justify-content:center; align-items:flex-start;
+padding:2rem 2.5rem; gap:1.25rem;
+transform:translateY(-100%); transition:transform 0.55s cubic-bezier(.65,0,.35,1);
+}
+.mobile-menu.open{transform:translateY(0);}
+.mobile-menu .close-btn{position:absolute; top:1.75rem; right:1.75rem;}
+.mobile-menu a{
+font-size:2.5rem; font-weight:900; letter-spacing:-0.02em;
+transition:transform 0.25s ease, color 0.25s ease;
+}
+@media(min-width:768px){ .mobile-menu a{font-size:4rem;} }
+.mobile-menu a:hover{transform:translateX(0.5rem); color:var(–brand-orange);}
+
+/* ––––– hero ––––– */
+.hero-container{ position:relative; height:400vh; z-index:10; }
+.hero-sticky{
+position:sticky; top:0; height:100vh; overflow:hidden;
+display:flex; align-items:center; justify-content:center;
+will-change:transform;
+background:#111;
+}
+.hero-video{
+position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.2;
+}
+.circles-wrap{
+position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+pointer-events:none;
+}
+.circle{
+position:absolute; border-radius:50%; width:22vmin; height:22vmin; will-change:transform,opacity;
+display:flex; align-items:center; justify-content:center; overflow:hidden;
+}
+.circle.c1{ background:var(–brand-orange); z-index:4; }
+.circle.c2{ background:#c93a1c; z-index:3; }
+.circle.c3{ background:#8c2510; z-index:2; }
+.circle.c4{ background:#521307; z-index:1; }
+.circle video{
+position:absolute; inset:-20%; width:140%; height:140%; object-fit:cover;
+mix-blend-mode:overlay; opacity:0.5;
+}
+.box-letters{
+position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+pointer-events:none; z-index:5; will-change:opacity;
+}
+.box-letters span{
+position:absolute; font-weight:900; font-size:26vmin; letter-spacing:-0.02em; line-height:1;
+color:#fff; user-select:none;
+}
+.box-letters .b{ right:50%; margin-right:14vmin; }
+.box-letters .x{ left:50%; margin-left:11vmin; }
+
+.hero-content{
+position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+text-align:center; z-index:6; padding:0 1.5rem; will-change:opacity,transform;
+}
+.hero-content.c1{ }
+.hero-content h1{
+font-size:2.75rem; font-weight:900; letter-spacing:-0.03em; line-height:1.05;
+}
+@media(min-width:768px){ .hero-content h1{font-size:5.5rem;} }
+.hero-content .eyebrow{
+display:block; font-size:0.8rem; font-weight:700; letter-spacing:0.3em; text-transform:uppercase;
+color:rgba(255,255,255,0.7); margin-bottom:1.25rem;
+}
+.cta-btn{
+display:inline-flex; align-items:center; gap:0.6rem; margin-top:2rem;
+padding:0.9rem 2rem; border:1px solid rgba(255,255,255,0.4); border-radius:999px;
+font-size:0.85rem; font-weight:700; text-transform:uppercase; letter-spacing:0.15em;
+transition:background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+.cta-btn:hover{ background:#fff; color:var(–brand-darker); border-color:#fff; }
+.cta-btn .arrow{ transition:transform 0.3s ease; }
+.cta-btn:hover .arrow{ transform:translateX(6px); }
+
+/* ––––– services ––––– */
+.services-container{
+position:relative; height:300vh; margin-top:-100vh; z-index:20;
+background:var(–brand-darker);
+}
+.services-inner{
+position:sticky; top:0; height:100vh; display:flex; flex-direction:column;
+padding:5rem 1.5rem 3rem;
+}
+@media(min-width:768px){ .services-inner{ flex-direction:row; padding:6rem 4rem; gap:4rem; } }
+.services-label{ flex:1; }
+.services-label .eyebrow{
+font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.3em; color:rgba(255,255,255,0.6);
+}
+.services-label h2{
+font-size:2.5rem; font-weight:900; letter-spacing:-0.02em; margin-top:1rem; line-height:1.05;
+}
+@media(min-width:768px){ .services-label h2{ font-size:4rem; } }
+.cards-wrap{
+position:relative; flex:1; height:50vh; margin-top:2.5rem;
+}
+@media(min-width:768px){ .cards-wrap{ height:60vh; margin-top:0; } }
+.service-card{
+position:absolute; inset:0; border-radius:1.5rem; padding:2.25rem;
+display:flex; flex-direction:column; justify-content:flex-end; overflow:hidden;
+transform:translateY(100%); will-change:transform;
+box-shadow:0 20px 50px rgba(0,0,0,0.35);
+}
+.service-card video{
+position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0.2;
+}
+.service-card .num{ position:relative; font-size:0.8rem; font-weight:700; letter-spacing:0.2em; opacity:0.7; }
+.service-card h3{ position:relative; font-size:1.9rem; font-weight:900; margin-top:0.6rem; }
+.service-card p{ position:relative; margin-top:0.6rem; font-size:0.95rem; color:rgba(255,255,255,0.75); max-width:32ch; }
+.service-card.s1{ background:#1e293b; }
+.service-card.s2{ background:#334155; }
+.service-card.s3{ background:var(–brand-orange); }
+
+/* ––––– portfolio ––––– */
+.portfolio{ background:#111; padding:6rem 1.25rem; position:relative; z-index:20; }
+@media(min-width:768px){ .portfolio{ padding:8rem 3rem; } }
+.portfolio-head{ max-width:40rem; margin:0 auto 3rem; text-align:center; }
+.portfolio-head .eyebrow{ font-size:0.8rem; font-weight:700; letter-spacing:0.3em; text-transform:uppercase; color:rgba(255,255,255,0.5); }
+.portfolio-head h2{ font-size:2.25rem; font-weight:900; margin-top:0.75rem; letter-spacing:-0.02em; }
+@media(min-width:768px){ .portfolio-head h2{ font-size:3.25rem; } }
+
+.accordion{
+display:flex; flex-direction:column; gap:0.5rem;
+height:75vh; max-width:80rem; margin:0 auto;
+}
+@media(min-width:768px){ .accordion{ flex-direction:row; height:60vh; gap:0.5rem; } }
+.acc-item{
+position:relative; flex:1; border-radius:1rem; overflow:hidden; cursor:pointer;
+transition:flex 0.7s cubic-bezier(.25,1,.5,1);
+min-height:3.5rem;
+}
+.acc-item.active{ flex:4; }
+@media(min-width:768px){ .acc-item.active{ flex:5; } }
+.acc-item img{
+position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+filter:blur(4px) brightness(0.55); transition:filter 0.7s cubic-bezier(.25,1,.5,1);
+}
+.acc-item.active img{ filter:blur(0) brightness(0.85); }
+.acc-item::after{
+content:’’; position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.15));
+}
+.acc-item .label{
+position:absolute; left:1.25rem; bottom:1.25rem; right:1.25rem; z-index:2;
+font-weight:800; font-size:1.1rem; white-space:normal;
+}
+@media(min-width:768px){
+.acc-item .label{ writing-mode:vertical-rl; text-orientation:mixed; white-space:nowrap; bottom:1.5rem; left:auto; right:1.25rem; font-size:1.25rem; }
+.acc-item.active .label{ writing-mode:horizontal-tb; left:1.5rem; right:1.5rem; font-size:1.75rem; }
+}
+.acc-item .tag{
+position:absolute; left:1.25rem; top:1.25rem; z-index:2; font-size:0.7rem; font-weight:700;
+text-transform:uppercase; letter-spacing:0.2em; color:rgba(255,255,255,0.6);
+opacity:0; transition:opacity 0.4s ease 0.2s;
+}
+.acc-item.active .tag{ opacity:1; }
+
+/* ––––– footer ––––– */
+.footer{
+height:100vh; background:var(–brand-darkest); display:flex; flex-direction:column;
+justify-content:center; align-items:center; position:relative; z-index:20; padding:2rem 1.25rem;
+}
+.footer-eyebrow{
+font-size:0.8rem; font-weight:700; letter-spacing:0.3em; text-transform:uppercase; color:rgba(255,255,255,0.5);
+margin-bottom:1.5rem;
+}
+.footer-mask-wrap{
+width:100%; max-width:90rem; height:32vh; position:relative;
+-webkit-mask-image:url(‘data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300"><text x="50%25" y="58%25" font-family="Inter, sans-serif" font-size="180" font-weight="900" letter-spacing="-6" text-anchor="middle">LET'S TALK.</text></svg>’);
+mask-image:url(‘data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300"><text x="50%25" y="58%25" font-family="Inter, sans-serif" font-size="180" font-weight="900" letter-spacing="-6" text-anchor="middle">LET'S TALK.</text></svg>’);
+-webkit-mask-size:contain; mask-size:contain; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; -webkit-mask-position:center; mask-position:center;
+cursor:pointer; transition:filter 0.5s ease;
+}
+.footer-mask-wrap video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.footer-mask-wrap::before{
+content:’’; position:absolute; inset:0; background:var(–brand-orange); opacity:0; transition:opacity 0.5s ease; z-index:2;
+}
+.footer-mask-wrap:hover::before{ opacity:1; }
+.footer-fallback-text{
+font-size:12vw; font-weight:900; letter-spacing:-0.03em; line-height:1; text-align:center;
+color:#fff; opacity:0; position:absolute; pointer-events:none;
+}
+
+.footer-links{
+display:flex; flex-direction:column; gap:0.75rem; align-items:center; margin-top:3rem;
+color:rgba(255,255,255,0.6); font-size:0.85rem;
+}
+@media(min-width:768px){
+.footer-links{ flex-direction:row; gap:2rem; }
+}
+.footer-links a{ transition:color 0.2s ease; }
+.footer-links a:hover{ color:#fff; }
+
+section, footer{ position:relative; }
+
+@media (prefers-reduced-motion: reduce){
+*{ transition-duration:0.01ms !important; animation-duration:0.01ms !important; }
+}
+</style>
+
+</head>
+<body>
+
+<div class="grid-overlay"></div>
+
+<!-- NAVBAR -->
+
+<nav class="navbar" id="navbar">
+  <div class="logo">OUT<span class="dim">BOX</span></div>
+  <div class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#work">Work</a>
+    <a href="#talk">Contact</a>
+  </div>
+  <button class="menu-btn" id="menuOpen" aria-label="Open menu">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <button class="close-btn" id="menuClose" aria-label="Close menu">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <a href="#services">Services</a>
+  <a href="#work">Work</a>
+  <a href="#talk">Contact</a>
+</div>
+
+<!-- HERO -->
+
+<div class="hero-container" id="heroContainer">
+  <div class="hero-sticky" id="heroSticky">
+    <video class="hero-video" autoplay loop muted playsinline src="https://strvid.nyc3.cdn.digitaloceanspaces.com/cloudinary/bg1_jgni8n.mp4"></video>
+
+```
+<div class="circles-wrap">
+  <div class="circle c4" id="circle4"></div>
+  <div class="circle c3" id="circle3"></div>
+  <div class="circle c2" id="circle2"></div>
+  <div class="circle c1" id="circle1">
+    <video autoplay loop muted playsinline src="https://strvid.nyc3.cdn.digitaloceanspaces.com/cloudinary/bg4_hzaahu.mp4"></video>
+  </div>
+</div>
+
+<div class="box-letters" id="boxLetters">
+  <span class="b">B</span>
+  <span class="x">X</span>
+</div>
+
+<div class="hero-content c1" id="content1">
+  <div>
+    <span class="eyebrow">Creative Studio</span>
+    <h1>Think outside<br/>the box.</h1>
+  </div>
+</div>
+
+<div class="hero-content c2" id="content2" style="opacity:0;">
+  <div>
+    <h1>Elevating Brands.<br/>Defining Futures.</h1>
+    <a href="#talk" class="cta-btn">Let's Talk <span class="arrow">→</span></a>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- SERVICES -->
+
+<section class="services-container" id="services">
+  <div class="services-inner">
+    <div class="services-label">
+      <span class="eyebrow">What We Do</span>
+      <h2>Our Core<br/>Expertise.</h2>
+    </div>
+    <div class="cards-wrap" id="cardsWrap">
+      <div class="service-card s1" style="top:0px;">
+        <video autoplay loop muted playsinline src="https://strvid.nyc3.cdn.digitaloceanspaces.com/cloudinary/bg5_yx7j4k.mp4"></video>
+        <span class="num">01</span>
+        <h3>Brand Identity</h3>
+        <p>Distinct visual systems built to hold up across every touchpoint, from logo to launch.</p>
+      </div>
+      <div class="service-card s2" style="top:40px;">
+        <video autoplay loop muted playsinline src="https://strvid.nyc3.cdn.digitaloceanspaces.com/cloudinary/bg2_zvj76l.mp4"></video>
+        <span class="num">02</span>
+        <h3>Digital Marketing</h3>
+        <p>Campaigns engineered around attention, data, and a point of view worth following.</p>
+      </div>
+      <div class="service-card s3" style="top:80px;">
+        <video autoplay loop muted playsinline src="https://strvid.nyc3.cdn.digitaloceanspaces.com/cloudinary/bg3_fqnvi9.mp4"></video>
+        <span class="num">03</span>
+        <h3>Web Experience</h3>
+        <p>Interfaces that move like the brand behind them — fast, considered, memorable.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+
+<section class="portfolio" id="work">
+  <div class="portfolio-head">
+    <span class="eyebrow">Selected Work</span>
+    <h2>Featured Projects.</h2>
+  </div>
+  <div class="accordion" id="accordion">
+    <div class="acc-item active" data-name="EcoNexa">
+      <img src="https://strvid.nyc3.cdn.digitaloceanspaces.com/cloudinary/EcoNexa_w4kl4w.webp" alt="EcoNexa"/>
+      <span class="tag">Brand · Web</span>
+      <span class="label">EcoNexa</span>
+    </div>
+    <div class="acc-item" data-name="Bali Travel">
+      <img src="https://strvid.nyc3.cdn.digitaloceanspaces.com/cloudinary/Bali_travel_oxtsng.webp" alt="Bali Travel"/>
+      <span class="tag">Travel · Web</span>
+      <span class="label">Bali Travel</span>
+    </div>
+    <div class="acc-item" data-name="Calm">
+      <img src="https://strvid.nyc3.cdn.digitaloceanspaces.com/cloudinary/Calm_Hero_fbj3b9.webp" alt="Calm"/>
+      <span class="tag">Wellness · App</span>
+      <span class="label">Calm</span>
+    </div>
+    <div class="acc-item" data-name="Northridge">
+      <img src="https://strvid.nyc3.cdn.digitaloceanspaces.com/cloudinary/Northridge_Hero_lltty5.webp" alt="Northridge"/>
+      <span class="tag">Real Estate</span>
+      <span class="label">Northridge</span>
+    </div>
+    <div class="acc-item" data-name="Naturally">
+      <img src="https://strvid.nyc3.cdn.digitaloceanspaces.com/cloudinary/Naturally_Website_h5aq5g.webp" alt="Naturally"/>
+      <span class="tag">Lifestyle · Web</span>
+      <span class="label">Naturally</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+
+<footer class="footer" id="talk">
+  <span class="footer-eyebrow">Got a project in mind?</span>
+  <div class="footer-mask-wrap">
+    <video autoplay loop muted playsinline src="https://strvid.nyc3.cdn.digitaloceanspaces.com/cloudinary/bg1_jgni8n.mp4"></video>
+  </div>
+  <div class="footer-links">
+    <a href="mailto:hello@outbox.studio">hello@outbox.studio</a>
+    <a href="#">Instagram</a>
+    <a href="#">LinkedIn</a>
+    <a href="#">© 2026 OUTBOX</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // ---------- helpers ----------
+  const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
+  const lerp = (a,b,t)=>a+(b-a)*t;
+  const mapRange = (v,inMin,inMax,outMin,outMax)=>{
+    const t = clamp((v-inMin)/(inMax-inMin),0,1);
+    return lerp(outMin,outMax,t);
+  };
+
+  // ---------- navbar scroll state ----------
+  const navbar = document.getElementById('navbar');
+  function updateNavbar(){
+    if(window.scrollY > 50) navbar.classList.add('scrolled');
+    else navbar.classList.remove('scrolled');
+  }
+
+  // ---------- mobile menu ----------
+  const mobileMenu = document.getElementById('mobileMenu');
+  document.getElementById('menuOpen').addEventListener('click', ()=> mobileMenu.classList.add('open'));
+  document.getElementById('menuClose').addEventListener('click', ()=> mobileMenu.classList.remove('open'));
+  mobileMenu.querySelectorAll('a').forEach(a=> a.addEventListener('click', ()=> mobileMenu.classList.remove('open')));
+
+  // ---------- hero scroll-scrub ----------
+  const heroContainer = document.getElementById('heroContainer');
+  const heroSticky = document.getElementById('heroSticky');
+  const circle1 = document.getElementById('circle1');
+  const circle2 = document.getElementById('circle2');
+  const circle3 = document.getElementById('circle3');
+  const circle4 = document.getElementById('circle4');
+  const boxLetters = document.getElementById('boxLetters');
+  const content1 = document.getElementById('content1');
+  const content2 = document.getElementById('content2');
+
+  // ---------- services scroll-scrub ----------
+  const servicesContainer = document.getElementById('services');
+  const cards = document.querySelectorAll('.service-card');
+
+  function onScroll(){
+    updateNavbar();
+
+    // HERO progress: 0 at top of hero container, 1 when container fully scrolled past
+    const heroRect = heroContainer.getBoundingClientRect();
+    const heroScrollable = heroContainer.offsetHeight - window.innerHeight;
+    const heroProgress = clamp(-heroRect.top / heroScrollable, 0, 1);
+
+    // wrapper shrink in final 25%
+    const wrapScale = mapRange(heroProgress, 0.75, 1, 1, 0.7);
+    const wrapY = mapRange(heroProgress, 0.75, 1, 0, -40);
+    const wrapRadius = mapRange(heroProgress, 0.75, 1, 0, 60);
+    const wrapOpacity = mapRange(heroProgress, 0.9, 1, 1, 0);
+    heroSticky.style.transform = `translateY(${wrapY}px) scale(${wrapScale})`;
+    heroSticky.style.borderRadius = wrapRadius + 'px';
+    heroSticky.style.opacity = wrapOpacity;
+
+    // circle 1 scales 0.5 -> 5 across progress 0 -> 0.6
+    const c1Scale = mapRange(heroProgress, 0, 0.6, 0.5, 5);
+    circle1.style.transform = `scale(${c1Scale})`;
+
+    // circles 2-4 scale up slightly behind, then fade
+    const c2Scale = mapRange(heroProgress, 0.05, 0.55, 0.5, 4.2);
+    const c3Scale = mapRange(heroProgress, 0.1, 0.5, 0.5, 3.6);
+    const c4Scale = mapRange(heroProgress, 0.15, 0.45, 0.5, 3.0);
+    const outerFade = mapRange(heroProgress, 0.2, 0.45, 1, 0);
+    circle2.style.transform = `scale(${c2Scale})`;
+    circle3.style.transform = `scale(${c3Scale})`;
+    circle4.style.transform = `scale(${c4Scale})`;
+    circle2.style.opacity = outerFade;
+    circle3.style.opacity = outerFade;
+    circle4.style.opacity = outerFade;
+
+    // B/X letters fade out fast
+    boxLetters.style.opacity = mapRange(heroProgress, 0, 0.05, 1, 0);
+
+    // content 1: fade/slide in 0-0.15, hold, fade/slide out 0.15-0.45
+    const c1In = mapRange(heroProgress, 0, 0.12, 0, 1);
+    const c1Out = mapRange(heroProgress, 0.3, 0.45, 1, 0);
+    const c1Opacity = Math.min(c1In, c1Out);
+    const c1Y = mapRange(heroProgress, 0, 0.12, 50, 0) - mapRange(heroProgress, 0.3, 0.45, 0, 50);
+    content1.style.opacity = c1Opacity;
+    content1.style.transform = `translateY(${c1Y}px)`;
+
+    // content 2: fade/slide in from 0.45, stays
+    const c2Opacity = mapRange(heroProgress, 0.45, 0.6, 0, 1);
+    const c2Y = mapRange(heroProgress, 0.45, 0.6, 50, 0);
+    content2.style.opacity = c2Opacity;
+    content2.style.transform = `translateY(${c2Y}px)`;
+
+    // SERVICES progress
+    const svcRect = servicesContainer.getBoundingClientRect();
+    const svcScrollable = servicesContainer.offsetHeight - window.innerHeight;
+    const svcProgress = clamp(-svcRect.top / svcScrollable, 0, 1);
+
+    cards.forEach((card, i)=>{
+      const start = i / cards.length;
+      const end = start + (1/cards.length) * 1.4;
+      const localT = mapRange(svcProgress, start, end, 1, 0); // 1 = offscreen below, 0 = in place
+      const y = clamp(localT, 0, 1) * 100;
+      // scale down cards that are "underneath" (already revealed, further along)
+      const revealed = clamp(mapRange(svcProgress, start, end, 0, 1), 0, 1);
+      const behindCount = cards.length - 1 - i;
+      const depthScale = 1 - (behindCount > 0 ? 0 : 0); // base
+      card.style.transform = `translateY(${y}%) scale(${lerp(1, 1 - (i*0.02), revealed)})`;
+    });
+  }
+
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+  // ---------- portfolio accordion (hover on desktop, tap on touch) ----------
+  const items = document.querySelectorAll('.acc-item');
+  const isTouch = window.matchMedia('(hover: none)').matches;
+
+  if(isTouch){
+    items.forEach(item=>{
+      item.addEventListener('click', ()=>{
+        items.forEach(i=> i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+  } else {
+    items.forEach(item=>{
+      item.addEventListener('mouseenter', ()=>{
+        items.forEach(i=> i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+    const accordion = document.getElementById('accordion');
+    accordion.addEventListener('mouseleave', ()=>{
+      items.forEach(i=> i.classList.remove('active'));
+      items[0].classList.add('active');
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
