@@ -100,6 +100,7 @@ pointer-events:none;
 .circle{
 position:absolute; border-radius:50%; width:22vmin; height:22vmin; will-change:transform,opacity;
 display:flex; align-items:center; justify-content:center; overflow:hidden;
+isolation:isolate;
 }
 .circle.c1{ background:var(–brand-orange); z-index:4; }
 .circle.c2{ background:#c93a1c; z-index:3; }
@@ -107,8 +108,11 @@ display:flex; align-items:center; justify-content:center; overflow:hidden;
 .circle.c4{ background:#521307; z-index:1; }
 .circle video{
 position:absolute; inset:-20%; width:140%; height:140%; object-fit:cover;
-mix-blend-mode:overlay; opacity:0.5;
+mix-blend-mode:overlay; opacity:0; background:transparent;
+border-radius:50%; clip-path:circle(50%); -webkit-clip-path:circle(50%);
+transition:opacity 0.4s ease;
 }
+.circle video.loaded{ opacity:0.5; }
 .box-letters{
 position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
 pointer-events:none; z-index:5; will-change:opacity;
@@ -525,6 +529,12 @@ section, footer{ position:relative; }
   window.addEventListener('scroll', onScroll, {passive:true});
   window.addEventListener('resize', onScroll);
   onScroll();
+
+  // ---------- reveal circle video only once it actually has data ----------
+  document.querySelectorAll('.circle video').forEach(v=>{
+    v.addEventListener('loadeddata', ()=> v.classList.add('loaded'));
+    v.addEventListener('error', ()=> v.style.display='none');
+  });
 
   // ---------- portfolio accordion (hover on desktop, tap on touch) ----------
   const items = document.querySelectorAll('.acc-item');
